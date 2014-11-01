@@ -1,13 +1,65 @@
 package UserInterface.AdministrativeRole;
 
+import Business.Employee.Employee;
+import Business.Organization.Organization;
+import Business.Organization.OrganizationDirectory;
+import Business.Role.Role;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author Administrator
  */
 public class ManageUserAccountJPanel extends javax.swing.JPanel {
 
-    public ManageUserAccountJPanel() {
+    JPanel userProcessContainer;
+    OrganizationDirectory organizationDirectory;
+    
+    public ManageUserAccountJPanel(JPanel userProcessContainer,OrganizationDirectory organizationDirectory) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.organizationDirectory = organizationDirectory;
+        
+        populateOrg();
+        populateUserAccountTable();
+    }
+    
+    private void populateUserAccountTable(){
+        DefaultTableModel dtm = (DefaultTableModel) userJTable.getModel();
+        dtm.setRowCount(0);
+        for (Organization org : this.organizationDirectory.getOrganizationList()) {
+            for (UserAccount ua : org.getUserAccountDirectory().getUserAccountList()) {
+                Object row[] = new Object[2];
+                row[0] = ua.getUsername();
+                row[1] = ua.getRole().toString();
+                
+                dtm.addRow(row);
+            }
+        }
+    }
+    
+    private void populateOrg(){
+        organizationJComboBox.removeAllItems();
+        for (Organization org : organizationDirectory.getOrganizationList()) {
+            organizationJComboBox.addItem(org);
+        }
+    }
+    
+    private void populateEmployee(Organization org){
+        employeeJComboBox.removeAllItems();
+        for (Employee emp : org.getEmployeeDirectory().getEmployeeList()) {
+            employeeJComboBox.addItem(emp);
+        }
+    }
+    
+    private void populateRoles(Organization org){
+        roleJComboBox.removeAllItems();
+        for (Role r : org.getSupportedRole()) {
+            roleJComboBox.addItem(r);
+        }
     }
 
     /**
@@ -67,14 +119,14 @@ public class ManageUserAccountJPanel extends javax.swing.JPanel {
             }
         });
         jScrollPane1.setViewportView(userJTable);
-        userJTable.getColumnModel().getColumn(0).setResizable(false);
-        userJTable.getColumnModel().getColumn(1).setResizable(false);
+        if (userJTable.getColumnModel().getColumnCount() > 0) {
+            userJTable.getColumnModel().getColumn(0).setResizable(false);
+            userJTable.getColumnModel().getColumn(1).setResizable(false);
+        }
 
         jLabel2.setText("Password");
 
         jLabel3.setText("Employee");
-
-        employeeJComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         backjButton1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         backjButton1.setText("<< Back");
@@ -86,7 +138,6 @@ public class ManageUserAccountJPanel extends javax.swing.JPanel {
 
         jLabel5.setText("Organization");
 
-        organizationJComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         organizationJComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 organizationJComboBoxActionPerformed(evt);
@@ -94,8 +145,6 @@ public class ManageUserAccountJPanel extends javax.swing.JPanel {
         });
 
         jLabel4.setText("Role");
-
-        roleJComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -179,14 +228,32 @@ public class ManageUserAccountJPanel extends javax.swing.JPanel {
 
     private void createUserJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createUserJButtonActionPerformed
 
+        String userName = nameJTextField.getText();
+        String password = passwordJTextField.getText();
+        
+        Role role = (Role) roleJComboBox.getSelectedItem();
+        Employee e = (Employee) employeeJComboBox.getSelectedItem();
+        Organization selectedOrg = (Organization) organizationJComboBox.getSelectedItem();
+        
+        selectedOrg.getUserAccountDirectory().createUserAccount(userName, password, e, role);
+        
+        populateUserAccountTable();
     }//GEN-LAST:event_createUserJButtonActionPerformed
 
     private void backjButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backjButton1ActionPerformed
 
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_backjButton1ActionPerformed
 
     private void organizationJComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_organizationJComboBoxActionPerformed
 
+        Organization selectedOrg = (Organization) organizationJComboBox.getSelectedItem();
+        if (selectedOrg != null) {
+            populateEmployee(selectedOrg);
+            populateRoles(selectedOrg);
+        }
     }//GEN-LAST:event_organizationJComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

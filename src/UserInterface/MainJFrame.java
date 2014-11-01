@@ -1,9 +1,19 @@
 package UserInterface;
 
+import Business.Business;
+import Business.ConfigureABusiness;
+import Business.Organization.Organization;
+import Business.UserAccount.UserAccount;
+import java.awt.CardLayout;
+
 public class MainJFrame extends javax.swing.JFrame {
 
+    private Business business;
+    
+    
     public MainJFrame() {
         initComponents();
+        this.business = ConfigureABusiness.configure();
     }
 
     /**
@@ -78,7 +88,7 @@ public class MainJFrame extends javax.swing.JFrame {
 
         jSplitPane1.setLeftComponent(jPanel1);
 
-        container.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        container.setLayout(new java.awt.CardLayout());
         jSplitPane1.setRightComponent(container);
 
         getContentPane().add(jSplitPane1, java.awt.BorderLayout.CENTER);
@@ -88,6 +98,21 @@ public class MainJFrame extends javax.swing.JFrame {
 
     private void loginJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginJButtonActionPerformed
 
+        String userName = userNameJTextField.getText();
+        String password = String.valueOf(passwordField.getPassword());
+        
+        UserAccount ua = null;
+        
+        for (Organization org : this.business.getOrganizationDirectory().getOrganizationList()) {
+            ua = org.getUserAccountDirectory().authenticateUser(userName, password);
+            if (ua != null) {
+                //show workarea and break
+                container.add("UserWA",ua.getRole().createWorkArea(container, ua, org, business));
+                CardLayout layout = (CardLayout) container.getLayout();
+                layout.next(container);
+                break;
+            }
+        }
     }//GEN-LAST:event_loginJButtonActionPerformed
 
     /**

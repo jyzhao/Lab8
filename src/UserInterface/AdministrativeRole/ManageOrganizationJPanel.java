@@ -4,16 +4,55 @@
  */
 package UserInterface.AdministrativeRole;
 
+import Business.Organization.Organization;
+import Business.Organization.OrganizationDirectory;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author raunak
  */
 public class ManageOrganizationJPanel extends javax.swing.JPanel {
     
-    public ManageOrganizationJPanel() {
+    JPanel userProcessContainer;
+    OrganizationDirectory organizationDirectory;
+    
+    public ManageOrganizationJPanel(JPanel userProcessContainer, OrganizationDirectory organizationDirectory) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.organizationDirectory = organizationDirectory;
+        
+        populateOrganization();
+        populateOrganizationTypeCombo();
+        
     }
 
+    private void populateOrganization() {
+        DefaultTableModel dtm = (DefaultTableModel) organizationJTable.getModel();
+        dtm.setRowCount(0);
+        
+        for (Organization org : this.organizationDirectory.getOrganizationList()) {
+            Object row[] = new Object[2];
+            row[0] = org.getOrganizationID();
+            row[1] = org.getName();
+            
+            dtm.addRow(row);
+        }
+    }
+    
+    private void populateOrganizationTypeCombo() {
+        organizationJComboBox.removeAllItems();
+         
+        for (Organization.Type orgType : Organization.Type.values()) {
+            if (!orgType.getValue().equals(Organization.Type.Admin.getValue())) {
+                organizationJComboBox.addItem(orgType);
+            }
+        }
+    
+        
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -118,10 +157,16 @@ public class ManageOrganizationJPanel extends javax.swing.JPanel {
 
     private void addJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addJButtonActionPerformed
 
+        Organization.Type typeSelected = (Organization.Type) organizationJComboBox.getSelectedItem();
+        this.organizationDirectory.createOrganization(typeSelected);
+        populateOrganization();
     }//GEN-LAST:event_addJButtonActionPerformed
 
     private void backJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backJButtonActionPerformed
 
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_backJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

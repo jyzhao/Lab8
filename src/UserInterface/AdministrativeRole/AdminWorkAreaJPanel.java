@@ -7,6 +7,7 @@
 package UserInterface.AdministrativeRole;
 
 import Business.Business;
+import java.awt.CardLayout;
 import javax.swing.JPanel;
 
 /**
@@ -15,9 +16,14 @@ import javax.swing.JPanel;
  */
 public class AdminWorkAreaJPanel extends javax.swing.JPanel {
 
+    JPanel userProcessContainer;
+    Business business;
+    
     /** Creates new form AdminWorkAreaJPanel */
     public AdminWorkAreaJPanel(JPanel userProcessContainer, Business business) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.business = business;
     }
     
     /** This method is called from within the constructor to
@@ -66,14 +72,26 @@ public class AdminWorkAreaJPanel extends javax.swing.JPanel {
 
     private void userJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_userJButtonActionPerformed
 
+        ManageUserAccountJPanel muajp = new ManageUserAccountJPanel(userProcessContainer,business.getOrganizationDirectory());
+        userProcessContainer.add("ManageUAJP",muajp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_userJButtonActionPerformed
 
     private void manageEmployeeJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageEmployeeJButtonActionPerformed
 
+        ManageEmployeeJPanel mejp = new ManageEmployeeJPanel(userProcessContainer,business.getOrganizationDirectory());
+        userProcessContainer.add("ManageEmpJP",mejp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_manageEmployeeJButtonActionPerformed
 
     private void manageOrganizationJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_manageOrganizationJButtonActionPerformed
 
+        ManageOrganizationJPanel mojp = new ManageOrganizationJPanel(userProcessContainer,business.getOrganizationDirectory());
+        userProcessContainer.add("ManageOrgJP",mojp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_manageOrganizationJButtonActionPerformed
     
     

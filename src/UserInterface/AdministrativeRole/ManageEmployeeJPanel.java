@@ -1,14 +1,53 @@
 package UserInterface.AdministrativeRole;
 
+import Business.Employee.Employee;
+import Business.Organization.Organization;
+import Business.Organization.OrganizationDirectory;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author raunak
  */
 public class ManageEmployeeJPanel extends javax.swing.JPanel {
 
-    public ManageEmployeeJPanel() {
+    JPanel userProcessContainer;
+    OrganizationDirectory organizationDirectory;
+
+    public ManageEmployeeJPanel(JPanel userProcessContainer, OrganizationDirectory organizationDirectory) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.organizationDirectory = organizationDirectory;
+
+        populateComboBox();
     }
+
+    private void populateComboBox() {
+        organizationEmpJComboBox.removeAllItems();
+        organizationJComboBox.removeAllItems();
+
+        for (Organization org : organizationDirectory.getOrganizationList()) {
+            organizationJComboBox.addItem(org);
+            organizationEmpJComboBox.addItem(org);
+
+        }
+    }
+
+    private void populateEmployee(Organization org) {
+        DefaultTableModel dtm = (DefaultTableModel) employeeJTable.getModel();
+        dtm.setRowCount(0);
+        
+        for (Employee emp : org.getEmployeeDirectory().getEmployeeList()) {
+            Object row[] = new Object[2];
+            row[0] = emp.getId();
+            row[1] = emp.getName();
+            
+            dtm.addRow(row);
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -19,7 +58,7 @@ public class ManageEmployeeJPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        organizationJTable = new javax.swing.JTable();
+        employeeJTable = new javax.swing.JTable();
         addJButton = new javax.swing.JButton();
         organizationJComboBox = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
@@ -29,7 +68,7 @@ public class ManageEmployeeJPanel extends javax.swing.JPanel {
         organizationEmpJComboBox = new javax.swing.JComboBox();
         jLabel3 = new javax.swing.JLabel();
 
-        organizationJTable.setModel(new javax.swing.table.DefaultTableModel(
+        employeeJTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null},
                 {null, null},
@@ -55,9 +94,11 @@ public class ManageEmployeeJPanel extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(organizationJTable);
-        organizationJTable.getColumnModel().getColumn(0).setResizable(false);
-        organizationJTable.getColumnModel().getColumn(1).setResizable(false);
+        jScrollPane1.setViewportView(employeeJTable);
+        if (employeeJTable.getColumnModel().getColumnCount() > 0) {
+            employeeJTable.getColumnModel().getColumn(0).setResizable(false);
+            employeeJTable.getColumnModel().getColumn(1).setResizable(false);
+        }
 
         addJButton.setText("Create Employee");
         addJButton.addActionListener(new java.awt.event.ActionListener() {
@@ -146,19 +187,31 @@ public class ManageEmployeeJPanel extends javax.swing.JPanel {
 
     private void addJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addJButtonActionPerformed
 
+        String name = nameJTextField.getText();
+        Organization organization = (Organization) organizationEmpJComboBox.getSelectedItem();
+        organization.getEmployeeDirectory().createEmployee(name);
     }//GEN-LAST:event_addJButtonActionPerformed
 
     private void backJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backJButtonActionPerformed
 
+        userProcessContainer.remove(this);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.previous(userProcessContainer);
     }//GEN-LAST:event_backJButtonActionPerformed
 
     private void organizationJComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_organizationJComboBoxActionPerformed
+        Organization selectedOrg = (Organization) organizationJComboBox.getSelectedItem();
+
+        if (selectedOrg != null) {
+            populateEmployee(selectedOrg);
+        }
 
     }//GEN-LAST:event_organizationJComboBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addJButton;
     private javax.swing.JButton backJButton;
+    private javax.swing.JTable employeeJTable;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -166,6 +219,5 @@ public class ManageEmployeeJPanel extends javax.swing.JPanel {
     private javax.swing.JTextField nameJTextField;
     private javax.swing.JComboBox organizationEmpJComboBox;
     private javax.swing.JComboBox organizationJComboBox;
-    private javax.swing.JTable organizationJTable;
     // End of variables declaration//GEN-END:variables
 }
