@@ -4,7 +4,11 @@ package UserInterface.DoctorRole;
 import Business.Business;
 import Business.Organization.DoctorOrganization;
 import Business.UserAccount.UserAccount;
+import Business.WorkQueue.LabTestWorkRequest;
+import Business.WorkQueue.WorkRequest;
+import java.awt.CardLayout;
 import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -12,10 +16,40 @@ import javax.swing.JPanel;
  */
 public class DoctorWorkAreaJPanel extends javax.swing.JPanel {
 
+    JPanel userProcessContainer;
+    UserAccount ua;
+    DoctorOrganization org;
+    Business business;
+    
     public DoctorWorkAreaJPanel(JPanel userProcessContainer, UserAccount account, DoctorOrganization organization, Business business) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.ua = account;
+        this.org = org;
+        this.business = business;
+    
+        displayWorkRequest();
     }
 
+    private void displayWorkRequest(){
+        DefaultTableModel dtm = (DefaultTableModel) workRequestJTable.getModel();
+        dtm.setRowCount(0);
+        
+        for (WorkRequest wr : ua.getWorkQueue().getWorkRequestList()) {
+            Object row[] = new Object[4];
+            row[0] = wr.getMessage();
+            row[1] = wr.getReceiver();
+            row[2] = wr.getStatus();
+            
+            LabTestWorkRequest labReq = (LabTestWorkRequest) wr;
+            String result = labReq.getTestResult();
+            row[3] = (result == null) ? ("N/A") : (result);
+            
+            dtm.addRow(row);
+            
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -108,10 +142,15 @@ public class DoctorWorkAreaJPanel extends javax.swing.JPanel {
 
     private void requestTestJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestTestJButtonActionPerformed
 
+        RequestLabTestJPanel rltjp = new RequestLabTestJPanel(userProcessContainer,ua,Business.getInstance());
+        userProcessContainer.add("ReqTestJP",rltjp);
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        layout.next(userProcessContainer);
     }//GEN-LAST:event_requestTestJButtonActionPerformed
 
     private void refreshTestJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshTestJButtonActionPerformed
 
+        displayWorkRequest();
     }//GEN-LAST:event_refreshTestJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

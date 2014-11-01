@@ -1,9 +1,24 @@
 package UserInterface.DoctorRole;
 
+import Business.Business;
+import Business.Organization.LabOrganization;
+import Business.Organization.Organization;
+import Business.UserAccount.UserAccount;
+import Business.WorkQueue.LabTestWorkRequest;
+import java.awt.CardLayout;
+import javax.swing.JPanel;
+
 public class RequestLabTestJPanel extends javax.swing.JPanel {
 
-    public RequestLabTestJPanel() {
+    JPanel upc;
+    UserAccount ua;
+    Business business;
+    
+    public RequestLabTestJPanel(JPanel upc,UserAccount ua, Business business) {
         initComponents();
+        this.upc = upc;
+        this.ua = ua;
+        this.business = business;
     }
 
     /**
@@ -70,10 +85,32 @@ public class RequestLabTestJPanel extends javax.swing.JPanel {
 
     private void requestTestJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestTestJButtonActionPerformed
 
+        String message = messageJTextField.getText();
+        
+        LabTestWorkRequest ltwr = new LabTestWorkRequest();
+        ltwr.setMessage(message);
+        ltwr.setSender(ua);
+        ltwr.setStatus("SENT");
+        ltwr.setTestResult("Waiting");
+        
+        Organization foundOrg = null;
+        for (Organization org : business.getOrganizationDirectory().getOrganizationList()) {
+            if (org instanceof LabOrganization) {
+                foundOrg = org;
+                break;
+            }
+        }
+        if (foundOrg != null) {
+            foundOrg.getWorkQueue().getWorkRequestList().add(ltwr);
+            ua.getWorkQueue().getWorkRequestList().add(ltwr);
+        }
     }//GEN-LAST:event_requestTestJButtonActionPerformed
 
     private void backJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backJButtonActionPerformed
 
+        upc.remove(this);
+        CardLayout layout = (CardLayout) upc.getLayout();
+        layout.previous(upc);
     }//GEN-LAST:event_backJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

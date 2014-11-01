@@ -1,16 +1,47 @@
 package UserInterface.LabAssistantRole;
 
 import Business.Business;
+import Business.Organization.LabOrganization;
 import Business.Organization.Organization;
 import Business.UserAccount.UserAccount;
+import Business.WorkQueue.LabTestWorkRequest;
+import Business.WorkQueue.WorkRequest;
+import java.awt.CardLayout;
 import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
 
 public class LabAssistantWorkAreaJPanel extends javax.swing.JPanel {
 
-    public LabAssistantWorkAreaJPanel(JPanel userProcessContainer, UserAccount account, Organization organization, Business business) {
+    JPanel userProcessContainer;
+    UserAccount ua;
+    LabOrganization labOrg;
+    Business business;
+    
+    public LabAssistantWorkAreaJPanel(JPanel userProcessContainer, UserAccount account, LabOrganization organization, Business business) {
         initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.ua = account;
+        this.labOrg = organization;
+        this.business = business;
+        
+        populateWorkRequestForLab();
     }
  
+    private void populateWorkRequestForLab() {
+        DefaultTableModel dtm = (DefaultTableModel) workRequestJTable.getModel();
+        dtm.setRowCount(0);
+        
+        for (WorkRequest wr : labOrg.getWorkQueue().getWorkRequestList()) {
+            Object row[] = new Object[4];
+            row[0] = wr;
+            row[1] = wr.getSender().getEmployee().getName();
+            row[2] = (wr.getReceiver() == null) ? ("N/A") : (wr.getReceiver().getEmployee().getName());
+            row[3] = wr.getStatus();
+            
+            dtm.addRow(row);
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -113,14 +144,34 @@ public class LabAssistantWorkAreaJPanel extends javax.swing.JPanel {
 
     private void assignJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_assignJButtonActionPerformed
 
+        LabTestWorkRequest labTestReq;
+        int selectedRow = workRequestJTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            labTestReq = (LabTestWorkRequest) workRequestJTable.getValueAt(selectedRow, 0);
+            labTestReq.setReceiver(ua);
+            labTestReq.setStatus("Pending");
+            populateWorkRequestForLab();
+        }
     }//GEN-LAST:event_assignJButtonActionPerformed
 
     private void processJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_processJButtonActionPerformed
- 
+
+        LabTestWorkRequest labTestReq;
+        int selectedRow = workRequestJTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            labTestReq = (LabTestWorkRequest) workRequestJTable.getValueAt(selectedRow, 0);
+            labTestReq.setStatus("Processing");
+            
+            ProcessWorkRequestJPanel pwrjp = new ProcessWorkRequestJPanel(userProcessContainer, labTestReq);
+            userProcessContainer.add("ProcessWorkJP",pwrjp);
+            CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+            layout.next(userProcessContainer);
+        }
     }//GEN-LAST:event_processJButtonActionPerformed
 
     private void refreshJButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshJButtonActionPerformed
 
+        populateWorkRequestForLab();
     }//GEN-LAST:event_refreshJButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
